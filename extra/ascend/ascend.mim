@@ -1,0 +1,19 @@
+/// # The ascend Plugin {#ascend}
+///
+/// @see mim::plug::ascend
+///
+/// Emits the supported MímIR tensor subset as MLIR for the AscendNPU-IR HFusion pipeline.
+///
+/// [TOC]
+///
+/// ## Dependencies
+///
+import compile;
+///
+/// ## Phases
+///
+/// ### emit_hfusion
+///
+/// Emits static same-shape F32 tensor addition as Linalg/HFusion input.
+///
+axm emit_hfusion: compile.Phase;

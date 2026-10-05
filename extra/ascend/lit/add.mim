@@ -1,0 +1,19 @@
+// RUN: %mim %s -X ascend:o=- | %FileCheck %s
+
+plugin ascend;
+plugin math;
+plugin tensor;
+import compile;
+
+extern lam add (a b: «1024; math.F32»): «1024; math.F32» =
+    tensor.binary (math.arith.add 0 @math.f32) (a, b);
+
+extern lam _compile (): compile.Phase = ascend.emit_hfusion;
+
+// CHECK: module {
+// CHECK-NEXT: func.func @add(%arg0: tensor<1024xf32>, %arg1: tensor<1024xf32>) -> tensor<1024xf32> attributes {hacc.entry, hacc.function_kind = #hacc.function_kind<DEVICE>} {
+// CHECK-NEXT: %empty0 = tensor.empty() : tensor<1024xf32>
+// CHECK-NEXT: %result0 = linalg.elemwise_binary {fun = #linalg.binary_fn<add>} ins(%arg0, %arg1 : tensor<1024xf32>, tensor<1024xf32>) outs(%empty0 : tensor<1024xf32>) -> tensor<1024xf32>
+// CHECK-NEXT: return %result0 : tensor<1024xf32>
+// CHECK-NEXT: }
+// CHECK-NEXT: }

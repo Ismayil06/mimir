@@ -61,7 +61,7 @@ protected:
 
         // make sure that we don't need to rehash later on
         for (auto mut : muts)
-            if (auto lam = mut->isa<Lam>()) lam2bb_.try_emplace(lam, BB());
+            if (auto lam = mut->template isa<Lam>()) lam2bb_.try_emplace(lam, BB());
         auto old_size = lam2bb_.size();
 
         if (!child().direct_style()) assert(root()->ret_var());
@@ -72,7 +72,7 @@ protected:
         swap(scheduler_, new_scheduler);
 
         for (auto mut : muts) {
-            if (auto lam = mut->isa<Lam>()) {
+            if (auto lam = mut->template isa<Lam>()) {
                 curr_lam_ = lam;
                 if (!child().direct_style()) assert(lam == root() || Lam::isa_basicblock(lam));
                 child().emit_epilogue(lam);

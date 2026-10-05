@@ -26,5 +26,7 @@ assets/*.synctex.gz
 assets/logo.log
 assets/logo.pdf
 extra/*
+!extra/ascend/
+!extra/ascend/**
 pyrightconfig.json
 .zed
