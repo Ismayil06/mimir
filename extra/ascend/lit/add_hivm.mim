@@ -1,0 +1,24 @@
+// RUN: %mim %s -X ascend:o=- | %FileCheck %s
+
+plugin ascend;
+plugin math;
+plugin tensor;
+import compile;
+
+extern lam add (a b: «1024; math.F32»): «1024; math.F32» =
+    tensor.binary (math.arith.add 0 @math.f32) (a, b);
+
+extern lam _compile (): compile.Phase = ascend.emit_hivm;
+
+// CHECK: module {
+// CHECK-NEXT: func.func @add(%arg0: memref<1024xf32, #hivm.address_space<gm>>, %arg1: memref<1024xf32, #hivm.address_space<gm>>, %arg2: memref<1024xf32, #hivm.address_space<gm>>) attributes {hacc.entry, hacc.function_kind = #hacc.function_kind<DEVICE>} {
+// CHECK-NEXT: %0 = memref.alloc() : memref<1024xf32, #hivm.address_space<ub>>
+// CHECK-NEXT: hivm.hir.load ins(%arg0 : memref<1024xf32, #hivm.address_space<gm>>) outs(%0 : memref<1024xf32, #hivm.address_space<ub>>)
+// CHECK-NEXT: %1 = memref.alloc() : memref<1024xf32, #hivm.address_space<ub>>
+// CHECK-NEXT: hivm.hir.load ins(%arg1 : memref<1024xf32, #hivm.address_space<gm>>) outs(%1 : memref<1024xf32, #hivm.address_space<ub>>)
+// CHECK-NEXT: %2 = memref.alloc() : memref<1024xf32, #hivm.address_space<ub>>
+// CHECK-NEXT: hivm.hir.vadd ins(%0, %1 : memref<1024xf32, #hivm.address_space<ub>>, memref<1024xf32, #hivm.address_space<ub>>) outs(%2 : memref<1024xf32, #hivm.address_space<ub>>)
+// CHECK-NEXT: hivm.hir.store ins(%2 : memref<1024xf32, #hivm.address_space<ub>>) outs(%arg2 : memref<1024xf32, #hivm.address_space<gm>>)
+// CHECK-NEXT: return
+// CHECK-NEXT: }
+// CHECK-NEXT: }
